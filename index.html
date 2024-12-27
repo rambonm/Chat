@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <link href="https://unpkg.com/boxicons/css/boxicons.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s ease;
+        }
+
+        .container {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .auth,
+        .chat-box,
+        .profile,
+        .settings,
+        .edit-profile {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 350px;
+            max-width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .messages {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .message.sender {
+            background: #007bff;
+            color: white;
+            text-align: right;
+        }
+
+        .message.receiver {
+            background: #f0f0f0;
+            text-align: left;
+        }
+
+        .message-text {
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+        .message-info {
+            font-size: 12px;
+            color: #777;
+        }
+
+        .bottom-menu {
+            background: #fff;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            border-top: 1px solid #ccc;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .bottom-menu button {
+            background: none;
+            border: none;
+            font-size: 16px;
+            color: #007bff;
+            cursor: pointer;
+        }
+
+        .bottom-menu button:hover {
+            color: #0056b3;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -250px; /* Initially hidden */
+            width: 250px;
+            height: 100%;
+            background-color: #2c3e50;
+            color: white;
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: left 0.3s ease;
+        }
+
+        .sidebar.active {
+            left: 0; /* Slide in when active */
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+            text-align: center;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .sidebar a:hover {
+            background-color: #34495e;
+        }
+
+        .sidebar button {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .sidebar button:hover {
+            background-color: #c0392b;
+        }
+
+        .dark-mode {
+            background-color: #2c3e50;
+            color: white;
+        }
+
+        .dark-mode .sidebar {
+            background-color: #34495e;
+        }
+
+        .dark-mode input,
+        .dark-mode select {
+            background-color: #34495e;
+            color: white;
+        }
+
+        /* Hamburger Menu Icon */
+        .hamburger {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            background: none;
+            border: none;
+            color: #007bff;
+        }
+
+        .hamburger:hover {
+            color: #0056b3;
+        }
+
+        .close-icon {
+            text-align: right;
+            padding-right: 15px;
+            cursor: pointer;
+        }
+
+        .close-icon:hover {
+            color: #e74c3c;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Hamburger Menu -->
+    <button class="hamburger"><i class="bx bx-menu"></i></button>
+
+    <div class="sidebar">
+        <div class="close-icon"><i class="bx bx-x"></i></div>
+        <a href="#" id="goHome"><i class="bx bx-home"></i> Home</a>
+        <a href="#" id="goProfile"><i class="bx bx-user"></i> Profile</a>
+        <a href="#" id="goSettings"><i class="bx bx-cog"></i> Settings</a>
+        <button id="toggleDarkMode"><i class="bx bx-moon"></i> Toggle Dark Mode</button>
+    </div>
+
+    <div class="container">
+        <!-- Rest of the code remains unchanged -->
+        <div class="auth">
+            <h1>Chat App</h1>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
+            </div>
+            <button id="signUp">Sign Up</button>
+            <button id="signIn">Sign In</button>
+        </div>
+
+        <div class="chat-box" style="display: none;">
+            <div class="messages" id="messages"></div>
+            <div class="form-group">
+                <input type="text" id="messageInput" placeholder="Type your message here">
+            </div>
+            <button id="sendMessage">Send</button>
+        </div>
+
+        <div class="profile" style="display: none;">
+            <h1>Your Profile</h1>
+            <p><strong>Email:</strong> <span id="userEmail"></span></p>
+            <button id="editProfile">Edit Profile</button>
+        </div>
+
+        <div class="edit-profile" style="display: none;">
+            <h1>Edit Profile</h1>
+            <div class="form-group">
+                <label for="displayName">Display Name</label>
+                <input type="text" id="displayName">
+            </div>
+            <div class="form-group">
+                <label for="profilePicture">Profile Picture URL</label>
+                <input type="url" id="profilePicture">
+            </div>
+            <button id="saveProfile">Save</button>
+        </div>
+
+        <div class="settings" style="display: none;">
+            <h1>Settings</h1>
+            <button id="logout">Log Out</button>
+        </div>
+    </div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, addDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDlIeEmGM0r9xuyCvFZXNB9Cyyu4KULXPg",
+        authDomain: "vibra-ad479.firebaseapp.com",
+        projectId: "vibra-ad479",
+        storageBucket: "vibra-ad479.firebasestorage.app",
+        messagingSenderId: "674699657815",
+        appId: "1:674699657815:web:51c2615670c69eddfb9912",
+        measurementId: "G-Z1VH91YW1H"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const signUpButton = document.getElementById('signUp');
+    const signInButton = document.getElementById('signIn');
+    const chatBox = document.querySelector('.chat-box');
+    const authContainer = document.querySelector('.auth');
+    const messagesDiv = document.getElementById('messages');
+    const messageInput = document.getElementById('messageInput');
+    const sendMessageButton = document.getElementById('sendMessage');
+    const profileContainer = document.querySelector('.profile');
+    const userEmailSpan = document.getElementById('userEmail');
+    const editProfileButton = document.getElementById('editProfile');
+    const editProfileContainer = document.querySelector('.edit-profile');
+    const displayNameInput = document.getElementById('displayName');
+    const profilePictureInput = document.getElementById('profilePicture');
+    const saveProfileButton = document.getElementById('saveProfile');
+    const logoutButton = document.getElementById('logout');
+    const goHomeButton = document.getElementById('goHome');
+    const goProfileButton = document.getElementById('goProfile');
+    const goSettingsButton = document.getElementById('goSettings');
+    const toggleDarkModeButton = document.getElementById('toggleDarkMode');
+    const sidebar = document.querySelector('.sidebar');
+    const hamburger = document.querySelector('.hamburger');
+    const closeIcon = document.querySelector('.close-icon');
+
+    let currentUser = null;
+
+    // Show the authentication form by default
+    authContainer.style.display = 'block';
+    chatBox.style.display = 'none';
+
+    // Listen for authentication state changes
+    onAuthStateChanged(auth, user => {
+        if (user) {
+            currentUser = user;
+            displayChatBox();
+            hamburger.style.display = 'block';
+        } else {
+            displayAuthForm();
+            sidebar.classList.remove('active');
+            hamburger.style.display = 'none';
+        }
+    });
+
+    // Sign up functionality
+    signUpButton.addEventListener('click', async () => {
+        try {
+            await createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+        } catch (error) {
+            console.error('Sign Up Error:', error);
+        }
+    });
+
+    // Sign in functionality
+    signInButton.addEventListener('click', async () => {
+        try {
+            await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+        } catch (error) {
+            console.error('Sign In Error:', error);
+        }
+    });
+
+    // Log out functionality
+    logoutButton.addEventListener('click', async () => {
+        try {
+            await signOut(auth);
+        } catch (error) {
+            console.error('Log Out Error:', error);
+        }
+    });
+
+    // Save Profile function
+    saveProfileButton.addEventListener('click', async () => {
+        if (currentUser) {
+            const userRef = doc(db, 'users', currentUser.uid);
+            await setDoc(userRef, {
+                displayName: displayNameInput.value,
+                profilePicture: profilePictureInput.value
+            });
+            displayProfile();
+        }
+    });
+
+    // Send a message functionality
+    sendMessageButton.addEventListener('click', async () => {
+        if (messageInput.value && currentUser) {
+            const messagesRef = collection(db, 'messages');
+            await addDoc(messagesRef, {
+                sender: currentUser.email,
+                message: messageInput.value,
+                timestamp: new Date()
+            });
+            messageInput.value = '';
+        }
+    });
+
+    // Display the Chat box
+    function displayChatBox() {
+        authContainer.style.display = 'none';
+        chatBox.style.display = 'block';
+        profileContainer.style.display = 'none';
+        editProfileContainer.style.display = 'none';
+
+        // Fetch messages and display them
+        const messagesRef = collection(db, 'messages');
+        onSnapshot(messagesRef, snapshot => {
+            messagesDiv.innerHTML = '';
+            snapshot.forEach(doc => {
+                const message = doc.data();
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message', message.sender === currentUser.email ? 'sender' : 'receiver');
+                messageDiv.innerHTML = `
+                    <div class="message-text">${message.message}</div>
+                    <div class="message-info">${message.sender} | ${new Date(message.timestamp.seconds * 1000).toLocaleString()}</div>
+                `;
+                messagesDiv.appendChild(messageDiv);
+            });
+        });
+    }
+
+    // Display the authentication form
+    function displayAuthForm() {
+        authContainer.style.display = 'block';
+        chatBox.style.display = 'none';
+        profileContainer.style.display = 'none';
+        editProfileContainer.style.display = 'none';
+    }
+
+    // Display profile details
+    function displayProfile() {
+        if (currentUser) {
+            userEmailSpan.innerText = currentUser.email;
+            authContainer.style.display = 'none';
+            chatBox.style.display = 'none';
+            profileContainer.style.display = 'block';
+            editProfileContainer.style.display = 'none';
+        }
+    }
+
+    // Toggle Dark Mode
+    toggleDarkModeButton.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+    });
+
+    // Navigation actions
+    goHomeButton.addEventListener('click', () => {
+        displayChatBox();
+    });
+
+    goProfileButton.addEventListener('click', () => {
+        displayProfile();
+    });
+
+    goSettingsButton.addEventListener('click', () => {
+        authContainer.style.display = 'none';
+        chatBox.style.display = 'none';
+        profileContainer.style.display = 'none';
+        editProfileContainer.style.display = 'none';
+        settings.style.display = 'block';
+    });
+
+    // Toggle Sidebar
+    hamburger.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
+    });
+
+    closeIcon.addEventListener('click', () => {
+        sidebar.classList.remove('active');
+    });
+</script>
+
+</body>
+
+</html>
